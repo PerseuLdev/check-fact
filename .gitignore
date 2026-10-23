@@ -11,5 +11,10 @@ media/
 test-results/
 outputs/
 __pycache__/
+*.pyc
+connections.dat
+client_secret*.json
+outputs/
+__pycache__/
 *.py[cod]
 *.log

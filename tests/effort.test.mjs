@@ -26,6 +26,7 @@ function sse(text){return new Response('data: '+JSON.stringify({type:'response.c
 test('effort options are model-specific, respect catalog restrictions, and do not guess for unknown models',()=>{
   assert.ok(openaiEfforts('gpt-6-luna').includes('none'));
   assert.ok(!openaiEfforts('gpt-6.1-sol').includes('none'));
+  for(const model of ['gpt-5.6-sol','gpt-5.6-terra','gpt-5.6-luna'])assert.deepEqual(openaiEfforts(model),['none','low','medium','high','xhigh','max']);
   assert.deepEqual(openaiEfforts('gpt-6-luna',{supported_reasoning_efforts:['low',{effort:'high'},'ultra','high']}),['low','high']);
   assert.deepEqual(openaiEfforts('gpt-6-luna',{supported_reasoning_efforts:[]}),[]);
   assert.deepEqual(openaiEfforts('unknown-model'),[]);

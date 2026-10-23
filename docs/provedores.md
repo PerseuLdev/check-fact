@@ -49,3 +49,29 @@ Para uma integração direta da API do Claude, as alternativas documentadas incl
 
 - https://code.claude.com/docs/en/legal-and-compliance#authentication-and-credential-use
 - https://platform.claude.com/docs/en/manage-claude/authentication
+
+
+## Esforço de raciocínio
+
+O painel e a extensão usam `selectedEffort`, com `default` representando a ausência de override. `lib/effort.mjs` centraliza opções e validação. Em ChatGPT, a preferência fica em `modelEfforts[model]` no registro criptografado da conexão. O catálogo pode restringir níveis por `supported_reasoning_efforts`; quando esse campo não é fornecido, usa-se a tabela explícita de modelos conhecidos. Modelos desconhecidos ficam no padrão. O teste de inferência registra modelo e effort, e a escolha da sessão é fixada ao iniciar.
+
+Nas chamadas Responses de ChatGPT e Gateway, envia-se `reasoning: {effort}` apenas quando existe escolha explícita compatível. `none` é uma escolha explícita e não equivale a `default`. O fluxo de assinatura mantém `store:false`, `stream:true` e a lista anterior de campos permitidos. No Gateway, triagem e pesquisa têm preferências independentes mesmo se configuradas com o mesmo modelo; o limite de saída das chamadas com override sobe para pelo menos 16.384 tokens para acomodar raciocínio e JSON. A transcrição recebe apenas a credencial, sem reasoning.
+
+No Gemini `generateContent`, modelos 3 ou posteriores cadastrados usam `generationConfig.thinkingConfig.thinkingLevel`. O Gemini 2.5 usa `thinkingBudget`: **low=1024**, **medium=4096**, **high=8192**. Estes três budgets são decisões do aplicativo, não equivalências oficiais de níveis entre provedores. Seu `maxOutputTokens` passa a 8192 + budget, reservando espaço para o texto final. Pesquisa e formatação usam a mesma escolha; respostas incompletas continuam rejeitadas. Não se envia `thinkingLevel` ao Gemini 2.5.
+
+Chamadas com effort explícito têm timeout de 180 segundos; chamadas no padrão mantêm 45 segundos. Isso permite maior tempo de raciocínio sem remover o cancelamento da sessão. O limite não garante que qualquer chamada termine a tempo.
+
+Referências oficiais verificadas em 23/10/2026:
+
+- [OpenAI: reasoning.effort e diferenças por modelo](https://developers.openai.com/api/docs/guides/reasoning)
+- [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna)
+- [GPT-6.1 Sol](https://developers.openai.com/api/docs/models/gpt-6.1-sol)
+- [GPT-6 Astra](https://developers.openai.com/api/docs/models/gpt-6-astra)
+- [Sign in with ChatGPT: catálogo e inferência](https://developers.openai.com/siwc/token-sharing-open-source/models-and-inference)
+- [Gemini: ThinkingConfig no contrato generateContent](https://ai.google.dev/api/generate-content#ThinkingConfig)
+- [Gemini: níveis suportados por modelo](https://ai.google.dev/gemini-api/docs/thinking)
+
+- [GPT-5.6 Sol](https://developers.openai.com/api/docs/models/gpt-5.6-sol)
+- [GPT-5.6 Terra](https://developers.openai.com/api/docs/models/gpt-5.6-terra)
+- [GPT-5.6 Luna](https://developers.openai.com/api/docs/models/gpt-5.6-luna)
+- [GPT-6 Sol](https://developers.openai.com/api/docs/models/gpt-6-sol)

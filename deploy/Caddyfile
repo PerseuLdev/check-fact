@@ -1,0 +1,6 @@
+{$VERIFICA_DOMAIN} {
+  encode zstd gzip
+  reverse_proxy app:4311 {
+    flush_interval -1
+  }
+}

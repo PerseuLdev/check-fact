@@ -52,7 +52,7 @@ function renderAuth(){
   $('model-status').textContent=a.verifiedModel&&a.verifiedModel===a.selectedModel&&a.verifiedEffort===a.selectedEffort?'Modelo e effort confirmados por uma resposta concluída.':'Modelo e effort ainda não testados nesta conexão.';
 }
 async function loadAuth(withModels=false){
-  if(authRequest)return authRequest;
+  if(authRequest){await authRequest;if(withModels&&!modelItems.length)return loadAuth(true);return authState;}
   authRequest=(async()=>{try{const r=await fetch('/api/auth/state',{cache:'no-store'});if(!r.ok)throw new Error('Não foi possível consultar a conexão.');authState=await r.json();renderAuth();
     if(loginInProgress&&!authState.pending){
       loginInProgress=false;

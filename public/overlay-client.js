@@ -6,7 +6,7 @@ export function createOverlay(root,{preview=false}={}){
     if(!c||c.status!=='published'){card.hidden=true;current='';return;}
     const token=c.id+':'+c.revision;if(token===current)return;current=token;card.dataset.verdict=c.result.verdict;
     part('verdict').textContent=names[c.result.verdict]||c.result.verdict;part('quote').textContent='“'+c.quote+'”';part('explanation').textContent=c.result.explanation;
-    part('sources').replaceChildren();for(const e of c.result.evidence.slice(0,2)){const a=document.createElement('a');a.href=e.url;a.textContent=e.title+' · '+new URL(e.url).hostname;a.target='_blank';a.rel='noopener noreferrer';part('sources').append(a,document.createElement('br'));}
+    part('sources').replaceChildren();for(const e of (c.result.evidence||[]).slice(0,2)){let url;try{url=new URL(e.url);if(url.protocol!=='https:'||url.username||url.password)continue;}catch{continue;}const a=document.createElement('a');a.href=url.href;a.textContent=e.title+' · '+url.hostname;a.target='_blank';a.rel='noopener noreferrer';part('sources').append(a,document.createElement('br'));}
     part('label').textContent=demo?'DEMONSTRAÇÃO LOCAL · SEM IA · NÃO ENVIADA AO OBS':(preview?'PRÉVIA DA ÚLTIMA CHECAGEM · ':'')+'CHECAGEM AUTOMÁTICA'+(c.revision?' · ATUALIZADA COM NOVO CONTEXTO':'')+' · '+c.latency+'s após o bloco da fala';
     card.hidden=false;clearTimeout(timer);if(!preview&&!demo)timer=setTimeout(()=>card.hidden=true,30000);
   }

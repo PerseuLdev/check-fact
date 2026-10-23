@@ -15,6 +15,7 @@ Extensão Manifest V3 com painel lateral, leitura do vídeo atual do YouTube e c
 
 ## Comportamento e limites
 
+- Em **Opções avançadas → Esforço de raciocínio (effort)**, ajuste o nível do modelo ChatGPT selecionado. O menu mostra apenas níveis compatíveis; **Padrão do modelo** não envia um override. A preferência é salva no servidor por conexão/modelo e é compartilhada com o painel web. Encerre a sessão antes de alterá-la. Após atualizar os arquivos desta extensão, recarregue-a em `chrome://extensions`, recarregue o YouTube e reabra o painel lateral.
 - O motor lê o áudio pela URL. Não captura o áudio da aba. Pausar, avançar, alterar a velocidade ou trocar o vídeo não sincroniza nem encerra o motor. Encerre e reinicie para mudar de trecho. Lives seguem o ponto entregue pela plataforma.
 - A transcrição local agora usa janelas de 12 segundos com quatro segundos de sobreposição, busca com feixe 5 e tentativas alternativas para trechos de baixa pontuação. A triagem usa 90 segundos recentes e pode recuperar até 3 minutos. Janelas maiores podem elevar a latência e não eliminam erros de reconhecimento.
 - Em vídeos gravados, ao começar no meio do vídeo, o motor transcreve localmente até 90 segundos anteriores ao ponto escolhido antes de iniciar a checagem. Isso pode levar alguns segundos e prepara contexto sem publicar checagens antigas. Lives começam no ponto de áudio que a plataforma entregar.

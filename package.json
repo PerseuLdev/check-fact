@@ -5,6 +5,8 @@
   "type": "module",
   "description": "Checagem incremental de falas com painel local e overlay",
   "scripts": {
+    "web": "npx --yes --package=node@24 node --env-file-if-exists=.env web-server.mjs",
+    "start": "node --env-file-if-exists=.env web-server.mjs",
     "dev": "npx --yes --package=node@24 node --env-file-if-exists=.env node_modules/eve/bin/eve.js dev --host 127.0.0.1 --port 4310 --no-ui --no-default-extensions",
     "build": "npx --yes --package=node@24 node node_modules/eve/bin/eve.js build",
     "test": "node --test tests/*.test.mjs"

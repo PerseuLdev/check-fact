@@ -5,7 +5,7 @@ const busy=()=>['running','connecting','preparing','draining'].includes(state?.s
 function note(text){$('notice').textContent=text;}
 async function api(action,data){
   if(!token)throw new Error('Conecte o motor com o código de pareamento.');
-  const r=await fetch(base+'/api/extension',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({action,data}),signal:AbortSignal.timeout(action==='start'?180000:8000)});
+  const r=await fetch(base+'/api/extension',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({action,data}),signal:AbortSignal.timeout(action==='start'?180000:action==='effort'?30000:8000)});
   const result=await r.json();if(!r.ok)throw new Error(result.error||'Falha no motor local.');return result;
 }
 function controls(){const active=busy(),ready=state?.provider==='chatgpt'&&state?.aiConfigured;$('connect-chatgpt').hidden=!!ready||active||starting;$('start').hidden=!ready||active;$('start').disabled=starting||!video;$('probe').disabled=starting||active||!video||!state;$('stop').hidden=!active&&!starting;$('date').disabled=active||starting;$('context').disabled=active||starting;}

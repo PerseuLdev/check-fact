@@ -1,5 +1,13 @@
 # Verifica — checagem incremental por URL
 
+## Versão web para celular e domínio
+
+Execute `npm.cmd run web` e abra <http://127.0.0.1:4311>. A nova versão reúne player, transcrição e cartões na mesma página, com sessões isoladas por navegador e entradas por YouTube, arquivo, microfone e áudio compartilhado quando suportado. **Só transcrever** não exige conexão de IA. O painel da extensão continua em `npm.cmd run dev`.
+
+O processamento de áudio acontece no servidor desta instalação. Um domínio HTTPS permite acessar a interface pelo celular; hospedagem e dimensionamento do servidor ainda precisam ser configurados. A versão pública utiliza uma conexão de API explícita por visitante; o login do plano ChatGPT permanece restrito ao modo local em loopback, conforme o fluxo oficial. Não há overlay sobre outros aplicativos nem integração Globoplay validada.
+
+Veja [como usar, limites e publicação com Docker/HTTPS](docs/versao-web.md).
+
 ## Extensão do Chrome
 
 A versão de extensão fica em [`extension/`](extension/README.md). Execute o servidor local e carregue essa pasta em `chrome://extensions` → **Modo do desenvolvedor** → **Carregar sem compactação**. O painel lateral identifica o vídeo do YouTube aberto, inicia a checagem no ponto selecionado e mostra fontes e cartões sobre o player. O pareamento é feito em http://127.0.0.1:4310/extension.
@@ -38,6 +46,17 @@ O servidor só escuta a interface local. Não é uma publicação na internet.
 7. Para uma execução curta, use **Testar checagem · 30 s** nas configurações. Esse teste usa a URL e o ponto inicial do painel, transcreve, analisa e pesquisa, consumindo uso do plano. Para acompanhar continuamente, selecione **Iniciar checagem**. No modo ChatGPT, os blocos de áudio são processados localmente por faster-whisper; apenas texto e contexto são enviados para análise. A pesquisa web depende da disponibilidade e da política da conta.
 8. Os cartões são publicados automaticamente no painel e no overlay. O overlay mostra o último resultado por 30 segundos e oculta resultados em reavaliação.
 9. Para mudar o ponto de reprodução, encerre e inicie no número de segundos desejado. Em uma live, o início é o ponto entregue pela plataforma.
+
+### Esforço de raciocínio (effort)
+
+Em **Configurar IA**, escolha o modelo e ajuste **Esforço de raciocínio (effort)**. Na extensão do Chrome, a mesma preferência aparece em **Opções avançadas**. O menu mostra os níveis compatíveis com o modelo; modelos sem suporte confirmado ficam em **Padrão do modelo**.
+
+- **Padrão do modelo** mantém o comportamento anterior, sem enviar um effort explícito.
+- ChatGPT oferece níveis conforme o modelo e as restrições do catálogo da conta. A preferência é salva por modelo e conexão, inclusive após reiniciar o servidor.
+- Gemini usa os parâmetros nativos da API do Google. No Gemini 2.5, baixo/médio/alto correspondem aos budgets locais documentados em `docs/provedores.md`. O login Google simplificado continua indisponível.
+- A alternativa do Gateway tem escolhas separadas para triagem e pesquisa, aplicadas aos modelos configurados no servidor. Elas ficam somente na memória até reiniciar, assim como a chave.
+
+A escolha vale para o teste do modelo, a triagem e a pesquisa das próximas sessões. Alterá-la exige encerrar a checagem em andamento. Níveis maiores podem aumentar o tempo e o consumo de tokens; não garantem um veredito melhor. Depois de mudar o modelo ou o effort, use **Testar modelo** para confirmar essa combinação. O ajuste não altera a transcrição local.
 
 ### Contas e autorização
 
@@ -79,9 +98,19 @@ Há uma trava independente do modelo para referências temporais relativas recon
 
 ## Resultado e taxonomia
 
-Resultados principais: correta, correta com ressalvas, parcialmente correta, falsa, evidências insuficientes e inconclusiva. Tags incluem exagero, subestimação, contexto ausente, fora de contexto, dado desatualizado, recorte seletivo, erro numérico, comparação inadequada e causalidade não demonstrada.
+Resultados principais: correta, correta com ressalvas, parcialmente correta, falsa, evidências insuficientes e inconclusiva. Perguntas podem receber resposta com contexto; relatos de declarações podem receber informação de contexto, sem juízo de verdadeiro ou falso sobre a fala. Tags incluem exagero, subestimação, contexto ausente, fora de contexto, dado desatualizado, recorte seletivo, erro numérico, comparação inadequada e causalidade não demonstrada.
 
 O sistema avalia afirmações. Não infere intenção de mentir, identidade de voz, personalidade ou culpa. Vozes não são identificadas neste protótipo. Perguntas factuais podem receber uma resposta contextual com fontes; perguntas com uma premissa verificável têm a premissa checada. Opiniões puras e previsões futuras não recebem veredito factual.
+
+## Declarações como informação de contexto
+
+Notícias que relatam uma fala, como “Lula fala que o pai de Flávio deveria votar nele”, seguem o caminho `reported_speech`. O resultado sustentado aparece como **Informação de contexto**, em azul no painel, na extensão e nos overlays. O motor pesquisa os fatos por trás da declaração, identifica as pessoas com fontes e procura situação, local, datas e atualizações pertinentes. No exemplo, local de custódia e início de cada situação precisam ser confirmados; nenhum nome, prisão, unidade ou data é presumido a partir da manchete. A busca pode usar documentos anteriores à notícia e deve distinguir data de publicação, prisão inicial e transferência.
+
+Uma fonte que apenas reproduz a declaração não basta para esse resultado. A resposta estruturada deve distinguir contexto factual pesquisado (`informationBasis=independent_context`) de simples confirmação da fala (`speech_only`). A validação de fontes continua exigindo URLs registradas em uma pesquisa concluída. Há travas na checagem e na publicação: relatos reconhecidos não recebem correta, parcialmente correta ou falsa; uma resposta incompatível é substituída por evidências insuficientes. A detecção combina instruções semânticas e padrões de atribuição no alvo da pesquisa; esses padrões não cobrem todas as paráfrases. A marcação da base e a relevância semântica das fontes ainda dependem da IA.
+
+Sem data confirmada da fala, esse caminho pode pesquisar a situação na data da consulta, identificada em horário de Brasília, sem atribuí-la ao momento do vídeo. Afirmações factuais com referências temporais relativas mantêm a trava de data existente. Uma alegação concreta dentro de uma declaração é extraída e checada separadamente, preservando a atribuição e a citação original.
+
+Validação em 23/10/2026: 12 testes novos de regressão, 74 testes no conjunto e build concluído. As respostas externas desses testes são simuladas; isso valida os contratos e os bloqueios, sem comprovar a precisão factual da pesquisa em uma transmissão real.
 
 ## Registros e medição
 

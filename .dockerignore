@@ -1,0 +1,15 @@
+node_modules
+.venv
+.eve
+.output
+.git
+.env
+.env.*
+**/.env
+outputs
+data
+media
+test-results
+**/__pycache__
+**/connections.dat
+**/client_secret*.json

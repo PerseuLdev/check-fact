@@ -1,0 +1,33 @@
+services:
+  app:
+    build: ..
+    restart: unless-stopped
+    environment:
+      APP_PUBLIC_ORIGIN: https://${VERIFICA_DOMAIN:?Informe VERIFICA_DOMAIN no arquivo de ambiente}
+      WEB_ACCESS_CODE: ${WEB_ACCESS_CODE:?Defina um codigo privado para o teste publico}
+      LOCAL_ASR_MODEL: ${LOCAL_ASR_MODEL:-small}
+    volumes:
+      - models:/models
+    expose:
+      - '4311'
+    init: true
+    security_opt:
+      - no-new-privileges:true
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    environment:
+      VERIFICA_DOMAIN: ${VERIFICA_DOMAIN}
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+volumes:
+  models:
+  caddy_data:
+  caddy_config:
