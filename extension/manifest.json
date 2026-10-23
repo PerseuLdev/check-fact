@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Verifica — checagem com contexto",
+  "version": "0.1.0",
+  "description": "Acompanhe checagens do vídeo do YouTube no painel lateral, com o motor local Verifica.",
+  "minimum_chrome_version": "116",
+  "permissions": ["sidePanel", "storage", "activeTab"],
+  "host_permissions": ["http://127.0.0.1/*"],
+  "background": {"service_worker": "background.js", "type": "module"},
+  "action": {"default_title": "Abrir Verifica"},
+  "side_panel": {"default_path": "sidepanel.html"},
+  "content_scripts": [{"matches": ["https://www.youtube.com/*", "https://m.youtube.com/*"], "js": ["content.js"]}],
+  "content_security_policy": {"extension_pages": "script-src 'self'; object-src 'self'; connect-src http://127.0.0.1:4310"}
+}

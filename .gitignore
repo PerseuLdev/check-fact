@@ -1,0 +1,15 @@
+node_modules/
+.venv/
+.env
+.env.*
+!.env.example
+.eve/
+.output/
+.vercel/
+data/
+media/
+test-results/
+outputs/
+__pycache__/
+*.py[cod]
+*.log
